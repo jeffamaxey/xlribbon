@@ -42,7 +42,7 @@ class XMLBase(BaseModel):
         getters = self.dict(include=GETTERS)
         for key, value in getters.items():
             if value is None:
-                auto_getters.update({f"{module_name}.{self.id}_{key}": key})
+                auto_getters[f"{module_name}.{self.id}_{key}"] = key
                 self.__setattr__(key, f"{module_name}.{self.id}_{key}")
 
         if self.children:
@@ -55,7 +55,7 @@ class XMLBase(BaseModel):
         setters = self.dict(include=SETTERS)
         for key, value in setters.items():
             if value is None:
-                auto_setters.update({f"{module_name}.{self.id}_{key}": key})
+                auto_setters[f"{module_name}.{self.id}_{key}"] = key
                 self.__setattr__(key, f"{module_name}.{self.id}_{key}")
 
         if self.children:
@@ -64,11 +64,8 @@ class XMLBase(BaseModel):
 
     def get_images(self):
         """Look for images."""
-        images = []
         setters = self.dict(include={"image"})
-        for key, value in setters.items():
-            if value:
-                images.append(value)
+        images = [value for key, value in setters.items() if value]
         if self.children:
             [images.extend(child.get_images()) for child in self.children]
         return images
